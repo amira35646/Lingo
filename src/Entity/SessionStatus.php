@@ -2,9 +2,9 @@
 
 namespace App\Entity;
 
-enum SessionStatus
+enum SessionStatus : string
 {
-    case IN_PROGRESS = 'EN COURS';
+    case IN_PROGRESS = 'EN COUR';
     case COMPLETED = 'COMPLETE';
-    case CANCELLED = 'ANNULE'; /
+    case CANCELLED = 'ANNULE';
 }

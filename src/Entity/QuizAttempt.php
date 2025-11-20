@@ -12,9 +12,6 @@ class QuizAttempt
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    private ?int $id = null;
-
-    #[ORM\Column]
     private ?int $id_quizAtt = null;
 
     #[ORM\Column(type: Types::DATE_MUTABLE)]
@@ -26,9 +23,13 @@ class QuizAttempt
     #[ORM\Column]
     private ?int $score = null;
 
+    #[ORM\ManyToOne(targetEntity: Quiz::class, inversedBy: 'quizAttempts')]
+    #[ORM\JoinColumn(name: 'quiz_id', referencedColumnName: 'quiz_id', nullable: false)]
+    private ?Quiz $quiz = null;
+
     public function getId(): ?int
     {
-        return $this->id;
+        return $this->id_quizAtt;
     }
 
     public function getIdQuizAtt(): ?int
@@ -75,6 +76,18 @@ class QuizAttempt
     public function setScore(int $score): static
     {
         $this->score = $score;
+
+        return $this;
+    }
+
+    public function getQuiz(): ?Quiz
+    {
+        return $this->quiz;
+    }
+
+    public function setQuiz(?Quiz $quiz): static
+    {
+        $this->quiz = $quiz;
 
         return $this;
     }

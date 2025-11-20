@@ -7,14 +7,10 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ChatSessionRepository::class)]
-class
-ChatSession
+Class ChatSession
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
-
     #[ORM\Column(length: 255)]
     private ?string $chat_id = null;
 
@@ -26,7 +22,7 @@ ChatSession
 
     public function getId(): ?int
     {
-        return $this->id;
+        return $this->chat_id;
     }
 
     public function getChatId(): ?string

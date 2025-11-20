@@ -12,9 +12,6 @@ class ChatMessage
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    private ?int $id = null;
-
-    #[ORM\Column]
     private ?int $message_id = null;
 
     #[ORM\Column]
@@ -40,7 +37,7 @@ class ChatMessage
 
     public function getId(): ?int
     {
-        return $this->id;
+        return $this->message_id;
     }
 
     public function getMessageId(): ?int

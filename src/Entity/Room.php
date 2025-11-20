@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use App\Enum\RoomStatus;
 use App\Repository\RoomRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -12,9 +14,6 @@ class Room
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id = null;
-
     #[ORM\Column]
     private ?int $room_id = null;
 
@@ -35,9 +34,26 @@ class Room
 
     #[ORM\Column(enumType: RoomStatus::class)]
     private ?RoomStatus $room_status = RoomStatus::AVAILABLE;
+
+    /**
+     * @var Collection<int, User>
+     */
+    #[ORM\ManyToMany(targetEntity: User::class, mappedBy: 'rooms')]
+    private Collection $users;
+
+
+
+
+
+    public function __construct()
+    {
+        $this->users = new ArrayCollection();
+    }
+
+
     public function getId(): ?int
     {
-        return $this->id;
+        return $this->room_id;
     }
 
     public function getRoomId(): ?int
@@ -120,6 +136,33 @@ class Room
     public function setStatus(RoomStatus $status): static
     {
         $this->status = $status;
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, User>
+     */
+    public function getUsers(): Collection
+    {
+        return $this->users;
+    }
+
+    public function addUser(User $user): static
+    {
+        if (!$this->users->contains($user)) {
+            $this->users->add($user);
+            $user->addRoom($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUser(User $user): static
+    {
+        if ($this->users->removeElement($user)) {
+            $user->removeRoom($this);
+        }
+
         return $this;
     }
 }
