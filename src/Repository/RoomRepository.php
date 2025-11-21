@@ -40,4 +40,12 @@ class RoomRepository extends ServiceEntityRepository
 //            ->getOneOrNullResult()
 //        ;
 //    }
+    public function save(Room $room, bool $flush = false): void
+    {
+        $this->getEntityManager()->persist($room);
+
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
+    }
 }

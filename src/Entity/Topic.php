@@ -18,7 +18,7 @@ class Topic
 
     public function getId(): ?int
     {
-        return $this->id;
+        return $this->topic_id;
     }
 
     public function getTopicId(): ?int

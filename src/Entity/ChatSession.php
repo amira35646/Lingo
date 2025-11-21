@@ -10,7 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
 Class ChatSession
 {
     #[ORM\Id]
-    #[ORM\GeneratedValue]
+
     #[ORM\Column(length: 255)]
     private ?string $chat_id = null;
 

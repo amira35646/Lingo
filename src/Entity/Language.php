@@ -30,7 +30,7 @@ class Language
 
     public function getId(): ?int
     {
-        return $this->id;
+        return $this->id_lang;
     }
 
     public function getIdLang(): ?int

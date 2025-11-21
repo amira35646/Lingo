@@ -21,7 +21,7 @@ class Question
 
     public function getId(): ?int
     {
-        return $this->id;
+        return $this->id_question;
     }
 
     public function getIdQuestion(): ?int

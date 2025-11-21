@@ -1,0 +1,54 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Room - Lingo Management{% endblock %}
+
+{% block body %}
+    <div class="container-fluid">
+        <h1 class="mb-4">
+            <i class="fas fa-edit"></i> Edit Room
+        </h1>
+
+        <div class="card shadow-sm">
+            <div class="card-body">
+                {{ form_start(form) }}
+                <div class="mb-3">
+                    {{ form_label(form.maxParticipants) }}
+                    {{ form_widget(form.maxParticipants, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_errors(form.maxParticipants) }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(form.scheduledTime) }}
+                    {{ form_widget(form.scheduledTime, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_errors(form.scheduledTime) }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(form.durationMinutes) }}
+                    {{ form_widget(form.durationMinutes, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_errors(form.durationMinutes) }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(form.createdBy) }}
+                    {{ form_widget(form.createdBy, {'attr': {'class': 'form-control'}}) }}
+                    {{ form_errors(form.createdBy) }}
+                </div>
+
+                <div class="mb-3">
+                    {{ form_label(form.room_status) }}
+                    {{ form_widget(form.room_status, {'attr': {'class': 'form-select'}}) }}
+                    {{ form_errors(form.room_status) }}
+                </div>
+
+                <button class="btn btn-primary">
+                    <i class="fas fa-save"></i> Save Changes
+                </button>
+                <a href="{{ path('app_room_index') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Rooms
+                </a>
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

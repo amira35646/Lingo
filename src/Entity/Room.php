@@ -127,18 +127,28 @@ class Room
 
         return $this;
     }
-
     public function getStatus(): ?RoomStatus
     {
-        return $this->status;
+        return $this->room_status;  // ✅ Changed from $this->status
     }
 
     public function setStatus(RoomStatus $status): static
     {
-        $this->status = $status;
+        $this->room_status = $status;  // ✅ Changed from $this->status
         return $this;
     }
+// Also add this getter if missing:
+    public function getRoomStatus(): ?RoomStatus
+    {
+        return $this->room_status;
+    }
 
+
+    public function setRoomStatus(RoomStatus $room_status): static
+    {
+        $this->room_status = $room_status;
+        return $this;
+    }
     /**
      * @return Collection<int, User>
      */

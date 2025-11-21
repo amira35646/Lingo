@@ -1,0 +1,74 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Room Details - Lingo Management{% endblock %}
+
+{% block body %}
+    <div class="container-fluid">
+        <h1 class="mb-4">
+            <i class="fas fa-door-open"></i> Room Details
+        </h1>
+
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <table class="table table-bordered">
+                    <tbody>
+                    <tr>
+                        <th>ID</th>
+                        <td>{{ room.roomId }}</td>
+                    </tr>
+                    <tr>
+                        <th>Maximum Participants</th>
+                        <td>{{ room.maxParticipants }}</td>
+                    </tr>
+                    <tr>
+                        <th>Scheduled Time</th>
+                        <td>{{ room.scheduledTime ? room.scheduledTime|date('Y-m-d') : '' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Duration (minutes)</th>
+                        <td>{{ room.durationMinutes }}</td>
+                    </tr>
+                    <tr>
+                        <th>Created By</th>
+                        <td>{{ room.createdBy }}</td>
+                    </tr>
+                    <tr>
+                        <th>Created At</th>
+                        <td>{{ room.createdAt ? room.createdAt|date('Y-m-d H:i:s') : '' }}</td>
+                    </tr>
+                    <tr>
+                        <th>Status</th>
+                        <td>
+                            {% set statusClass = room.roomStatus.value == 'available' ? 'success' : (room.roomStatus.value == 'occupied' ? 'warning' : 'danger') %}
+                            <span class="badge bg-{{ statusClass }}">{{ room.roomStatus.value|upper }}</span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>Users</th>
+                        <td>
+                            {% if room.users|length > 0 %}
+                                <ul class="list-unstyled mb-0">
+                                    {% for user in room.users %}
+                                        <li><i class="fas fa-user text-primary"></i> {{ user.username }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <span class="text-muted">No users assigned</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <div class="mt-3">
+                    <a href="{{ path('app_room_index') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Rooms
+                    </a>
+                    <a href="{{ path('app_room_edit', {'id': room.roomId}) }}" class="btn btn-primary">
+                        <i class="fas fa-edit"></i> Edit Room
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
