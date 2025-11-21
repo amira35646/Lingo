@@ -9,19 +9,20 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 
+#[Route('/room')]
 class RoomController extends AbstractController
 {
-
-    #[Route('/room', name: 'app_room_index')]
-    public function index(RoomRepository $roomRepository,): Response
+    #[Route('/', name: 'app_room_index', methods: ['GET'])]
+    public function index(RoomRepository $roomRepository): Response
     {
-
         $rooms = $roomRepository->findAll();
         return $this->render('room/index.html.twig', [
             'rooms' => $rooms,
         ]);
     }
+
     #[Route('/new', name: 'app_room_new', methods: ['GET', 'POST'])]
     public function new(Request $request, RoomRepository $roomRepository): Response
     {
@@ -43,7 +44,8 @@ class RoomController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}', name: 'app_room_show', methods: ['GET'])]
+    #[Route('/{room_id}', name: 'app_room_show', methods: ['GET'])]
+    #[ParamConverter('room', options: ['mapping' => ['room_id' => 'room_id']])]
     public function show(Room $room): Response
     {
         return $this->render('room/show.html.twig', [
@@ -51,7 +53,8 @@ class RoomController extends AbstractController
         ]);
     }
 
-    #[Route('/{id}/edit', name: 'app_room_edit', methods: ['GET','POST'])]
+    #[Route('/{room_id}/edit', name: 'app_room_edit', methods: ['GET','POST'])]
+    #[ParamConverter('room', options: ['mapping' => ['room_id' => 'room_id']])]
     public function edit(Request $request, Room $room, RoomRepository $roomRepository): Response
     {
         $form = $this->createForm(RoomType::class, $room);
@@ -67,10 +70,11 @@ class RoomController extends AbstractController
             'form' => $form,
         ]);
     }
-    #[Route('/{id}', name: 'app_room_delete', methods: ['POST'])]
+
+    #[Route('/{room_id}', name: 'app_room_delete', methods: ['POST'])]
+    #[ParamConverter('room', options: ['mapping' => ['room_id' => 'room_id']])]
     public function delete(Request $request, Room $room, RoomRepository $roomRepository): Response
     {
-        // CSRF token protection
         if ($this->isCsrfTokenValid('delete'.$room->getRoomId(), $request->request->get('_token'))) {
             $roomRepository->remove($room, true);
         }
