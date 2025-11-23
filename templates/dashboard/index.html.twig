@@ -1,286 +1,533 @@
-{% extends 'base.html.twig' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Lingo Management</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* === CSS Variables for Consistent Design === */
+        :root {
+            --primary: #667eea;
+            --primary-light: #8a9ef5;
+            --primary-dark: #5a6fd8;
+            --success: #38c172;
+            --warning: #f6c23e;
+            --info: #36b9cc;
+            --danger: #e74a3b;
+            --dark: #2d3748;
+            --light: #f8f9fa;
+            --gray: #6c757d;
+            --border-radius: 12px;
+            --shadow: 0 4px 12px rgba(0,0,0,0.08);
+            --shadow-hover: 0 8px 24px rgba(0,0,0,0.12);
+            --transition: all 0.3s ease;
+        }
 
-{% block title %}Dashboard - Lingo Management{% endblock %}
+        /* === General Dashboard Styles === */
+        body {
+            background-color: #f4f6f9;
+            font-family: "Segoe UI", Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+            color: #495057;
+            line-height: 1.6;
+        }
+        .container-fluid {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
 
-{% block body %}
-    <div class="container-fluid">
-        <h1 class="mb-4">
-            <i class="fas fa-chart-line"></i> Dashboard
-        </h1>
+        /* === Page Header === */
+        .page-header {
+            background: linear-gradient(135deg, var(--primary) 0%, #764ba2 100%);
+            color: white;
+            padding: 2.5rem 2rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 2.5rem;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+        .page-header h1 {
+            margin: 0;
+            font-size: 2.2rem;
+            font-weight: 700;
+            position: relative;
+        }
+        .page-header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+            margin-bottom: 0;
+            position: relative;
+        }
+        .last-updated {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            display: inline-block;
+            margin-top: 0.5rem;
+        }
 
-        <!-- Statistics Cards -->
-        <div class="row g-4 mb-4">
-            <div class="col-md-4">
-                <div class="card stat-card border-primary shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="text-muted mb-2">Total Users</h6>
-                                <h2 class="mb-0 fw-bold">{{ stats.total_users }}</h2>
-                            </div>
-                            <div class="text-primary">
-                                <i class="fas fa-users fa-3x opacity-75"></i>
-                            </div>
-                        </div>
-                        <div class="mt-3">
-                            <a href="{{ path('app_user_index') }}" class="btn btn-sm btn-outline-primary">
-                                View All <i class="fas fa-arrow-right ms-1"></i>
-                            </a>
-                        </div>
-                    </div>
+        /* === Stat Cards === */
+        .stat-card {
+            border-radius: var(--border-radius);
+            padding: 1.75rem;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+            border: none;
+            height: 100%;
+            background: white;
+            box-shadow: var(--shadow);
+        }
+        .stat-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-hover);
+        }
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+        }
+        .stat-card.border-primary::before { background: linear-gradient(90deg, var(--primary), var(--primary-light)); }
+        .stat-card.border-success::before { background: linear-gradient(90deg, var(--success), #4cdc91); }
+        .stat-card.border-warning::before { background: linear-gradient(90deg, var(--warning), #f9d371); }
+        .stat-card.border-info::before { background: linear-gradient(90deg, var(--info), #5bc0de); }
+        .stat-card.border-danger::before { background: linear-gradient(90deg, var(--danger), #eb6c5e); }
+
+        .stat-card h6 {
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.75rem;
+            color: var(--gray);
+        }
+        .stat-card h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0;
+            color: var(--dark);
+        }
+        .stat-card .trend {
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            margin-top: 0.5rem;
+        }
+        .stat-card .trend.up { color: var(--success); }
+        .stat-card .trend.down { color: var(--danger); }
+        .stat-card i {
+            font-size: 2.8rem;
+            opacity: 0.15;
+            position: absolute;
+            bottom: 1rem;
+            right: 1.5rem;
+            transition: var(--transition);
+        }
+        .stat-card:hover i {
+            opacity: 0.25;
+            transform: scale(1.1);
+        }
+
+        /* === Quick Action Buttons === */
+        .action-card {
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+            border: none;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+        .action-card .card-header {
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            padding: 1.25rem 1.5rem;
+        }
+        .action-btn {
+            border-radius: 10px;
+            transition: var(--transition);
+            padding: 1.5rem 1rem;
+            text-align: center;
+            border: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            background: white;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+        .action-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        }
+        .action-btn i {
+            font-size: 2.2rem;
+            margin-bottom: 0.75rem;
+            transition: var(--transition);
+        }
+        .action-btn:hover i {
+            transform: scale(1.1);
+        }
+        .action-btn span {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        /* Button Colors */
+        .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); }
+        .btn-success { background: linear-gradient(135deg, var(--success), #2fa360); }
+        .btn-warning { background: linear-gradient(135deg, var(--warning), #e0ac2c); }
+        .btn-info { background: linear-gradient(135deg, var(--info), #2a96a5); }
+
+        /* === Tables === */
+        .data-card {
+            border-radius: var(--border-radius);
+            border: none;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            height: 100%;
+        }
+        .data-card:hover {
+            box-shadow: var(--shadow-hover);
+        }
+        .data-card .card-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .data-card .card-header h5 {
+            margin: 0;
+            display: flex;
+            align-items: center;
+        }
+        .data-card .card-header h5 i {
+            margin-right: 0.5rem;
+        }
+        .view-all {
+            font-size: 0.85rem;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .view-all:hover {
+            text-decoration: underline;
+        }
+        .table {
+            margin-bottom: 0;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+        .table thead {
+            background: #f1f3f5;
+        }
+        .table thead th {
+            border: none;
+            font-weight: 600;
+            padding: 1rem 1.5rem;
+            font-size: 0.9rem;
+            color: var(--dark);
+        }
+        .table tbody td {
+            padding: 1rem 1.5rem;
+            vertical-align: middle;
+            border-bottom: 1px solid #f1f3f5;
+        }
+        .table-hover tbody tr:hover {
+            background: rgba(102, 126, 234, 0.06);
+        }
+
+        /* Badges */
+        .badge {
+            font-size: 0.75rem;
+            padding: 0.4em 0.8em;
+            border-radius: 12px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        .bg-success { background: linear-gradient(135deg, var(--success), #2fa360) !important; }
+        .bg-warning { background: linear-gradient(135deg, var(--warning), #e0ac2c) !important; }
+        .bg-danger  { background: linear-gradient(135deg, var(--danger), #c93021) !important; }
+        .bg-info    { background: linear-gradient(135deg, var(--info), #2a96a5) !important; }
+        .bg-primary { background: linear-gradient(135deg, var(--primary), var(--primary-dark)) !important; }
+
+        /* === Footer === */
+        .footer-card {
+            text-align: center;
+            background: white;
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin-top: 2rem;
+        }
+
+        /* === Responsive === */
+        @media (max-width: 768px) {
+            .container-fluid {
+                padding: 1.5rem 1rem;
+            }
+            .page-header {
+                padding: 1.75rem 1.5rem;
+            }
+            .page-header h1 {
+                font-size: 1.8rem;
+            }
+            .stat-card h2 {
+                font-size: 1.6rem;
+            }
+            .stat-card i {
+                font-size: 2.2rem;
+            }
+            .action-btn {
+                padding: 1.25rem 0.75rem;
+            }
+            .action-btn i {
+                font-size: 1.8rem;
+            }
+        }
+
+        /* === Animation for page load === */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .fade-in-up {
+            animation: fadeInUp 0.5s ease forwards;
+        }
+    </style>
+</head>
+<body>
+<div class="container-fluid py-4">
+
+    <!-- Page Header -->
+    <div class="page-header fade-in-up">
+        <div class="d-flex justify-content-between align-items-center flex-wrap">
+            <div>
+                <h1><i class="fas fa-tachometer-alt me-2"></i> Dashboard Overview</h1>
+                <p class="mb-0">Welcome back! Here's what's happening with your platform today.</p>
+                <div class="last-updated">
+                    <i class="fas fa-clock me-1"></i> Last updated: {{ "now"|date("Y-m-d H:i:s") }}
                 </div>
             </div>
-
-            <div class="col-md-4">
-                <div class="card stat-card border-success shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="text-muted mb-2">Total Rooms</h6>
-                                <h2 class="mb-0 fw-bold">{{ stats.total_rooms }}</h2>
-                            </div>
-                            <div class="text-success">
-                                <i class="fas fa-door-open fa-3x opacity-75"></i>
-                            </div>
-                        </div>
-                        <div class="mt-3">
-                            <a href="{{ path('app_room_index') }}" class="btn btn-sm btn-outline-success">
-                                View All <i class="fas fa-arrow-right ms-1"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="card stat-card border-warning shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="text-muted mb-2">Total Quizzes</h6>
-                                <h2 class="mb-0 fw-bold">{{ stats.total_quizzes }}</h2>
-                            </div>
-                            <div class="text-warning">
-                                <i class="fas fa-question-circle fa-3x opacity-75"></i>
-                            </div>
-                        </div>
-                        <div class="mt-3">
-                            <a href="{{ path('app_quiz_index') }}" class="btn btn-sm btn-outline-warning">
-                                View All <i class="fas fa-arrow-right ms-1"></i>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-6">
-                <div class="card stat-card border-info shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="text-muted mb-2">Total Messages</h6>
-                                <h2 class="mb-0 fw-bold">{{ stats.total_messages }}</h2>
-                            </div>
-                            <div class="text-info">
-                                <i class="fas fa-comments fa-3x opacity-75"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-6">
-                <div class="card stat-card border-danger shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="text-muted mb-2">Total Topics</h6>
-                                <h2 class="mb-0 fw-bold">{{ stats.total_topics }}</h2>
-                            </div>
-                            <div class="text-danger">
-                                <i class="fas fa-book fa-3x opacity-75"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="mt-3 mt-md-0">
+                <button class="btn btn-light">
+                    <i class="fas fa-cog me-1"></i> Settings
+                </button>
             </div>
         </div>
+    </div>
 
-        <!-- Quick Actions -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-dark text-white">
-                        <h5 class="mb-0"><i class="fas fa-bolt"></i> Quick Actions</h5>
-                    </div>
+    <!-- Statistics Cards -->
+    <div class="row g-4 mb-5">
+        {% set card_classes = ['primary','success','warning','info','danger'] %}
+        {% set stats_keys = ['total_users','total_rooms','total_quizzes','total_messages','total_topics'] %}
+        {% set stats_icons = ['fa-users','fa-door-open','fa-question-circle','fa-comments','fa-book'] %}
+        {% set trends = [5, 12, -3, 8, 2] %}
+        {% for i in 0..4 %}
+            <div class="col-xl-{{ i < 3 ? 4 : 6 }} col-md-6">
+                <div class="stat-card border-{{ card_classes[i] }} fade-in-up" style="animation-delay: {{ i * 0.1 }}s">
                     <div class="card-body">
-                        <div class="row g-3">
-                            <div class="col-md-3">
-                                <a href="{{ path('app_user_new') }}" class="btn btn-primary w-100 py-3">
-                                    <i class="fas fa-user-plus fa-2x d-block mb-2"></i>
-                                    Add New User
-                                </a>
-                            </div>
-                            <div class="col-md-3">
-                                <a href="{{ path('app_room_new') }}" class="btn btn-success w-100 py-3">
-                                    <i class="fas fa-door-open fa-2x d-block mb-2"></i>
-                                    Create Room
-                                </a>
-                            </div>
-                            <div class="col-md-3">
-                                <a href="{{ path('app_quiz_new') }}" class="btn btn-warning w-100 py-3">
-                                    <i class="fas fa-plus-circle fa-2x d-block mb-2"></i>
-                                    Add Quiz
-                                </a>
-                            </div>
-                            <div class="col-md-3">
-                                <a href="{{ path('app_dashboard') }}" class="btn btn-info w-100 py-3">
-                                    <i class="fas fa-sync-alt fa-2x d-block mb-2"></i>
-                                    Refresh Data
-                                </a>
-                            </div>
+                        <h6 class="text-muted">{{ stats_keys[i]|replace({'_':' '})|title }}</h6>
+                        <h2 class="mb-2">{{ attribute(stats, stats_keys[i]) }}</h2>
+                        <div class="trend {{ trends[i] > 0 ? 'up' : 'down' }}">
+                            <i class="fas fa-arrow-{{ trends[i] > 0 ? 'up' : 'down' }} me-1"></i>
+                            {{ trends[i] > 0 ? '+' : '' }}{{ trends[i] }}% from last week
                         </div>
+                        <i class="fas {{ stats_icons[i] }} text-{{ card_classes[i] }}"></i>
                     </div>
                 </div>
             </div>
-        </div>
+        {% endfor %}
+    </div>
 
-        <!-- Recent Activity -->
-        <div class="row g-4">
-            <div class="col-md-6">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0"><i class="fas fa-user-plus"></i> Recent Users</h5>
-                    </div>
-                    <div class="card-body">
-                        {% if recent_users|length > 0 %}
-                            <div class="table-responsive">
-                                <table class="table table-hover mb-0">
-                                    <thead class="table-light">
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Username</th>
-                                        <th>Email</th>
-                                        <th>Role</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% for user in recent_users %}
-                                        <tr>
-                                            <td><strong>#{{ user.userId }}</strong></td>
-                                            <td>
-                                                <i class="fas fa-user text-primary"></i>
-                                                {{ user.username }}
-                                            </td>
-                                            <td>{{ user.email }}</td>
-                                            <td><span class="badge bg-info">{{ user.role }}</span></td>
-                                        </tr>
-                                    {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div class="mt-3">
-                                <a href="{{ path('app_user_index') }}" class="btn btn-sm btn-outline-primary w-100">
-                                    View All Users <i class="fas fa-arrow-right"></i>
-                                </a>
-                            </div>
-                        {% else %}
-                            <div class="text-center py-4">
-                                <i class="fas fa-users fa-3x text-muted mb-3"></i>
-                                <p class="text-muted">No users yet</p>
-                                <a href="{{ path('app_user_new') }}" class="btn btn-sm btn-primary">
-                                    <i class="fas fa-plus"></i> Add First User
-                                </a>
-                            </div>
-                        {% endif %}
-                    </div>
+    <!-- Quick Actions -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card action-card fade-in-up" style="animation-delay: 0.5s">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-bolt text-warning"></i> Quick Actions</h5>
+                    <a href="#" class="view-all">View all options <i class="fas fa-chevron-right ms-1"></i></a>
                 </div>
-            </div>
-
-            <div class="col-md-6">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-success text-white">
-                        <h5 class="mb-0"><i class="fas fa-door-open"></i> Recent Rooms</h5>
-                    </div>
-                    <div class="card-body">
-                        {% if recent_rooms|length > 0 %}
-                            <div class="table-responsive">
-                                <table class="table table-hover mb-0">
-                                    <thead class="table-light">
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>Capacity</th>
-                                        <th>Duration</th>
-                                        <th>Status</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    {% for room in recent_rooms %}
-                                        <tr>
-                                            <td><strong>#{{ room.roomId }}</strong></td>
-                                            <td>
-                                                <i class="fas fa-users text-info"></i>
-                                                {{ room.maxParticipants }}
-                                            </td>
-                                            <td>{{ room.durationMinutes }} min</td>
-                                            <td>
-                                                {% set statusClass = room.roomStatus.value == 'available' ? 'success' : (room.roomStatus.value == 'occupied' ? 'warning' : 'danger') %}
-                                                <span class="badge bg-{{ statusClass }}">
-                                                {{ room.roomStatus.value|upper }}
-                                            </span>
-                                            </td>
-                                        </tr>
-                                    {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div class="mt-3">
-                                <a href="{{ path('app_room_index') }}" class="btn btn-sm btn-outline-success w-100">
-                                    View All Rooms <i class="fas fa-arrow-right"></i>
-                                </a>
-                            </div>
-                        {% else %}
-                            <div class="text-center py-4">
-                                <i class="fas fa-door-open fa-3x text-muted mb-3"></i>
-                                <p class="text-muted">No rooms yet</p>
-                                <a href="{{ path('app_room_new') }}" class="btn btn-sm btn-success">
-                                    <i class="fas fa-plus"></i> Create First Room
-                                </a>
-                            </div>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- System Info Footer -->
-        <div class="row mt-4">
-            <div class="col-12">
-                <div class="card shadow-sm">
-                    <div class="card-body text-center">
-                        <p class="mb-0 text-muted">
-                            <i class="fas fa-info-circle"></i>
-                            Lingo Management System | Last updated: {{ "now"|date("Y-m-d H:i:s") }}
-                        </p>
+                <div class="card-body p-4">
+                    <div class="row g-3">
+                        <div class="col-md-3 col-sm-6">
+                            <a href="{{ path('app_user_new') }}" class="btn btn-primary action-btn text-white">
+                                <i class="fas fa-user-plus"></i>
+                                <span>Add User</span>
+                            </a>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <a href="{{ path('app_room_new') }}" class="btn btn-success action-btn text-white">
+                                <i class="fas fa-door-open"></i>
+                                <span>Create Room</span>
+                            </a>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <a href="{{ path('app_quiz_new') }}" class="btn btn-warning action-btn text-white">
+                                <i class="fas fa-plus-circle"></i>
+                                <span>Add Quiz</span>
+                            </a>
+                        </div>
+                        <div class="col-md-3 col-sm-6">
+                            <a href="{{ path('app_dashboard') }}" class="btn btn-info action-btn text-white">
+                                <i class="fas fa-sync-alt"></i>
+                                <span>Refresh</span>
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <style>
-        .stat-card {
-            transition: all 0.3s ease;
-            border-left-width: 4px !important;
-        }
+    <!-- Recent Users & Rooms -->
+    <div class="row g-4">
+        <!-- Recent Users -->
+        <div class="col-lg-6">
+            <div class="card data-card fade-in-up" style="animation-delay: 0.6s">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-user-plus text-primary"></i> Recent Users</h5>
+                    <a href="#" class="view-all">View all</a>
+                </div>
+                <div class="card-body p-0">
+                    {% if recent_users %}
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for user in recent_users %}
+                                    <tr>
+                                        <td class="fw-bold">#{{ user.id }}</td>
+                                        <td>{{ user.username }}</td>
+                                        <td>{{ user.email }}</td>
+                                        <td><span class="badge bg-info">{{ user.role }}</span></td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted py-5">
+                            <i class="fas fa-users fa-3x mb-3 opacity-25"></i>
+                            <p>No users yet</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
 
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
-        }
+        <!-- Recent Rooms -->
+        <div class="col-lg-6">
+            <div class="card data-card fade-in-up" style="animation-delay: 0.7s">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-door-open text-success"></i> Recent Rooms</h5>
+                    <a href="#" class="view-all">View all</a>
+                </div>
+                <div class="card-body p-0">
+                    {% if recent_rooms %}
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Capacity</th>
+                                    <th>Duration</th>
+                                    <th>Status</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for room in recent_rooms %}
+                                    <tr>
+                                        <td class="fw-bold">{{ room.id }}</td>
+                                        <td>{{ room.maxParticipants }}</td>
+                                        <td>{{ room.durationMinutes }} min</td>
+                                        <td>
+                                            {% set cls = room.status == 'available' ? 'success' : (room.status == 'occupied' ? 'warning' : 'danger') %}
+                                            <span class="badge bg-{{ cls }}">{{ room.status|upper }}</span>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center text-muted py-5">
+                            <i class="fas fa-door-open fa-3x mb-3 opacity-25"></i>
+                            <p>No rooms yet</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
 
-        .opacity-75 {
-            opacity: 0.75;
+    <!-- Footer -->
+    <div class="footer-card mt-5 fade-in-up" style="animation-delay: 0.8s">
+        <p class="mb-0 text-muted">© 2023 Lingo Management System. All rights reserved.</p>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Add some interactive elements
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add loading animation to stat cards
+        const statCards = document.querySelectorAll('.stat-card');
+        statCards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-8px)';
+            });
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+
+        // Simulate data refresh
+        const refreshBtn = document.querySelector('.btn-info');
+        if(refreshBtn) {
+            refreshBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const icon = this.querySelector('i');
+                icon.style.transform = 'rotate(180deg)';
+                setTimeout(() => {
+                    icon.style.transform = 'rotate(0)';
+                }, 500);
+
+                // In a real app, you would refresh data here
+                console.log('Refreshing data...');
+            });
         }
-    </style>
-{% endblock %}
+    });
+</script>
+</body>
+</html>

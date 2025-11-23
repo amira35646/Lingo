@@ -3,12 +3,10 @@
 namespace App\Repository;
 
 use App\Entity\ChatMessage;
+use App\Entity\ChatSession;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-/**
- * @extends ServiceEntityRepository<ChatMessage>
- */
 class ChatMessageRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
@@ -16,28 +14,30 @@ class ChatMessageRepository extends ServiceEntityRepository
         parent::__construct($registry, ChatMessage::class);
     }
 
-    //    /**
-    //     * @return ChatMessage[] Returns an array of ChatMessage objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('c')
-    //            ->andWhere('c.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('c.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    /**
+     * Find messages for a session with sender information preloaded
+     */
+    public function findBySessionWithSenders(ChatSession $session): array
+    {
+        return $this->createQueryBuilder('m')
+            ->where('m.session = :session')
+            ->setParameter('session', $session)
+            ->orderBy('m.timestamp', 'ASC')
+            ->getQuery()
+            ->getResult();
+    }
 
-    //    public function findOneBySomeField($value): ?ChatMessage
-    //    {
-    //        return $this->createQueryBuilder('c')
-    //            ->andWhere('c.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+    /**
+     * Find messages with minimal data for list display
+     */
+    public function findBySessionAsArray(int $sessionId): array
+    {
+        return $this->createQueryBuilder('m')
+            ->select('m.id', 'm.content', 'm.senderName', 'm.senderType', 'm.timestamp')
+            ->where('m.session = :sessionId')
+            ->setParameter('sessionId', $sessionId)
+            ->orderBy('m.timestamp', 'ASC')
+            ->getQuery()
+            ->getArrayResult();
+    }
 }

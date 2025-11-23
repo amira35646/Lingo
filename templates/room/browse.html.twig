@@ -1,8 +1,8 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Browse Rooms{% endblock %}
+{% block title %}Available Chat Rooms{% endblock %}
 
-{% block body %}
+{% block content %}
     <style>
         .room-card {
             transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -272,27 +272,27 @@
               <i class="fas ${statusIcon} me-1"></i>${escapeHtml(r.status || 'Unknown')}
             </span>
           </div>
-          
+
           <div class="room-info">
             <i class="fas fa-language"></i>
             <span><strong>Language:</strong> ${escapeHtml(languageName)}</span>
           </div>
-          
+
           <div class="room-info">
             <i class="fas fa-signal"></i>
             <span><strong>Level:</strong> ${escapeHtml(levelName)}</span>
           </div>
-          
+
           <div class="room-info">
             <i class="fas fa-users"></i>
             <span><strong>Participants:</strong> ${participantsCount}/${r.maxParticipants || 0}</span>
           </div>
-          
+
           <div class="room-info">
             <i class="fas fa-clock"></i>
             <span><strong>Starts in:</strong> ${timeUntil}</span>
           </div>
-          
+
           <div class="mt-3">
             <a class="btn btn-primary btn-join w-100 ${disabled}" href="/room/${r.id}" ${disabled ? 'aria-disabled="true"' : ''}>
               <i class="fas ${spotsLeft <= 0 ? 'fa-lock' : 'fa-sign-in-alt'} me-2"></i>

@@ -40,4 +40,48 @@ class UserRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+
+
+
+/**
+ * Find users with minimal data for listings
+ */
+public function findAllForListing(): array
+{
+    return $this->createQueryBuilder('u')
+        ->select('u.id', 'u.username', 'u.email', 'u.role', 'u.enabled')
+        ->getQuery()
+        ->getArrayResult();
+}
+    /**
+     * Find user with joined rooms (when you need room data)
+     */
+    public function findOneWithRooms(int $id): ?User
+    {
+        return $this->createQueryBuilder('u')
+            ->leftJoin('u.joinedRooms', 'r')
+            ->addSelect('r')
+            ->where('u.id = :id')
+            ->setParameter('id', $id)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
+    // src/Repository/UserRepository.php
+
+    public function findRecentUsers(int $limit = 5): array
+    {
+        $users = $this->createQueryBuilder('u')
+            ->select('u.id, u.username, u.email, u.role')
+            ->setMaxResults($limit)
+            ->orderBy('u.id', 'DESC')
+            ->getQuery()
+            ->getArrayResult();
+
+        // Convert enum objects to string
+        return array_map(function($u) {
+            $u['role'] = $u['role']->value; // <-- converts UserRole enum to string
+            return $u;
+        }, $users);
+    }
+
 }

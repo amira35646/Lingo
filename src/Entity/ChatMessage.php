@@ -7,60 +7,93 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ChatMessageRepository::class)]
+#[ORM\Table(name: 'message')]
 class ChatMessage
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $message_id = null;
+    #[ORM\Column(type: Types::INTEGER)]
+    private ?int $id = null;
 
-    #[ORM\Column]
-    private ?int $sender_id = null;
+    #[ORM\ManyToOne(targetEntity: ChatSession::class, inversedBy: 'messages')]
+    #[ORM\JoinColumn(name: 'session_id', nullable: true)]
+    private ?ChatSession $session = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(type: Types::BIGINT)]
+    private ?int $senderId = null;
+
+    #[ORM\Column(length: 50)]
+    private ?string $senderType = null; // "learner" or "AI"
+
+    #[ORM\Column(type: Types::TEXT)]
     private ?string $content = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $corrections = null;
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    private ?\DateTimeInterface $timestamp = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $correctionsJson = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $senderName = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $sendertype = null;
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $correction = null; // For AI corrections
 
-    #[ORM\Column(length: 255)]
-    private ?string $sendername = null;
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $translation = null; // For AI translations
 
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
-    private ?\DateTime $timestamp = null;
+    #[ORM\Column(type: Types::TEXT, nullable: true)]
+    private ?string $tip = null; // Optional learning tip
+
+    // Optional fields for analytics
+    #[ORM\Column(type: Types::BOOLEAN, options: ['default' => false])]
+    private bool $isCorrect = false; // True if the sentence was correct
+
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $mistakeType = null; // e.g. "Grammar", "Preposition"
 
     public function getId(): ?int
     {
-        return $this->message_id;
+        return $this->id;
     }
 
-    public function getMessageId(): ?int
+    public function getSession(): ?ChatSession
     {
-        return $this->message_id;
+        return $this->session;
     }
 
-    public function setMessageId(int $message_id): static
+    public function setSession(?ChatSession $session): static
     {
-        $this->message_id = $message_id;
-
+        $this->session = $session;
         return $this;
+    }
+
+    // Helper method to get session ID without loading the whole session
+    public function getSessionId(): ?int
+    {
+        return $this->session?->getId();
     }
 
     public function getSenderId(): ?int
     {
-        return $this->sender_id;
+        return $this->senderId;
     }
 
-    public function setSenderId(int $sender_id): static
+    public function setSenderId(int $senderId): static
     {
-        $this->sender_id = $sender_id;
+        $this->senderId = $senderId;
+        return $this;
+    }
 
+    public function getSenderType(): ?string
+    {
+        return $this->senderType;
+    }
+
+    public function setSenderType(string $senderType): static
+    {
+        $this->senderType = $senderType;
         return $this;
     }
 
@@ -72,55 +105,103 @@ class ChatMessage
     public function setContent(string $content): static
     {
         $this->content = $content;
-
         return $this;
     }
 
-    public function getCorrections(): ?string
+    public function getTimestamp(): ?\DateTimeInterface
     {
-        return $this->corrections;
+        return $this->timestamp;
     }
 
-    public function setCorrections(string $corrections): static
+    public function setTimestamp(\DateTimeInterface $timestamp): static
     {
-        $this->corrections = $corrections;
+        $this->timestamp = $timestamp;
+        return $this;
+    }
 
+    public function getCorrectionsJson(): ?string
+    {
+        return $this->correctionsJson;
+    }
+
+    public function setCorrectionsJson(?string $correctionsJson): static
+    {
+        $this->correctionsJson = $correctionsJson;
         return $this;
     }
 
     public function getSenderName(): ?string
     {
-        return $this->senderName;
+        // Return cached name if available
+        if ($this->senderName !== null) {
+            return $this->senderName;
+        }
+
+        // Don't trigger lazy loading - return a default
+        // The name should be set when creating the message
+        return 'Unknown';
     }
 
-    public function setSenderName(string $senderName): static
+// Add a new method to set sender name from User object
+    public function setSenderNameFromUser(User $user): self
     {
-        $this->senderName = $senderName;
-
+        $this->senderName = $user->getUsername();
+        $this->senderId = $user->getId();
         return $this;
     }
 
-    public function getSendertype(): ?string
+    public function getCorrection(): ?string
     {
-        return $this->sendertype;
+        return $this->correction;
     }
 
-    public function setSendertype(string $sendertype): static
+    public function setCorrection(?string $correction): static
     {
-        $this->sendertype = $sendertype;
-
+        $this->correction = $correction;
         return $this;
     }
 
-    public function getTimestamp(): ?\DateTime
+    public function getTranslation(): ?string
     {
-        return $this->timestamp;
+        return $this->translation;
     }
 
-    public function setTimestamp(\DateTime $timestamp): static
+    public function setTranslation(?string $translation): static
     {
-        $this->timestamp = $timestamp;
+        $this->translation = $translation;
+        return $this;
+    }
 
+    public function getTip(): ?string
+    {
+        return $this->tip;
+    }
+
+    public function setTip(?string $tip): static
+    {
+        $this->tip = $tip;
+        return $this;
+    }
+
+    public function isCorrect(): bool
+    {
+        return $this->isCorrect;
+    }
+
+    public function setIsCorrect(bool $isCorrect): static
+    {
+        $this->isCorrect = $isCorrect;
+        return $this;
+    }
+
+    public function getMistakeType(): ?string
+    {
+        return $this->mistakeType;
+    }
+
+    public function setMistakeType(?string $mistakeType): static
+    {
+        $this->mistakeType = $mistakeType;
         return $this;
     }
 }

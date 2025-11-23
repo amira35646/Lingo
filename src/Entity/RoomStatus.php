@@ -1,12 +1,6 @@
 <?php
-namespace App\Enum;
+// Deprecated duplicate file.
+// The canonical enum lives at: App\Enum\RoomStatus (src/Enum/RoomStatus.php)
+// This file intentionally contains no declarations to avoid duplicate enum errors.
 
-/**
- * Représente les différents statuts possibles d'une chambre.
- */
-enum RoomStatus: string
-{
-    case AVAILABLE = 'available';   // Chambre libre
-    case OCCUPIED = 'occupied';     // Chambre occupée
-    case MAINTENANCE = 'maintenance'; // Chambre en maintenance
-}
+// Kept to preserve history; safe to delete in a cleanup.

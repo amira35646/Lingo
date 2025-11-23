@@ -3,46 +3,49 @@
 namespace App\Entity;
 
 use App\Repository\LanguageRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: LanguageRepository::class)]
+#[ORM\Table(name: 'language')]
 class Language
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
-    #[ORM\Column]
-    private ?int $id_lang = null;
+    #[ORM\Column(type: 'integer')]
+    private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $name = null;
+    #[ORM\Column(length: 100, unique: true, nullable: false)]
+    private ?string $name = null; // English, Spanish, etc.
 
-    #[ORM\Column]
-    private ?int $id_topic = null;
+    /**
+     * @var Collection<int, ProficiencyLevel>
+     */
+    #[ORM\OneToMany(
+        targetEntity: ProficiencyLevel::class,
+        mappedBy: 'language',
+        cascade: ['persist', 'remove'],
+        fetch: 'EAGER',
+        orphanRemoval: true
+    )]
+    private Collection $proficiencyLevels;
 
-    #[ORM\Column(length: 255)]
-    private ?string $topic_name = null;
+    /**
+     * @var Collection<int, Room>
+     */
+    #[ORM\OneToMany(targetEntity: Room::class, mappedBy: 'targetLanguage')]
+    private Collection $rooms;
 
-    #[ORM\Column]
-    private ?int $lan_id = null;
-
-    #[ORM\Column(length: 255)]
-    private ?string $lang_name = null;
+    public function __construct()
+    {
+        $this->proficiencyLevels = new ArrayCollection();
+        $this->rooms = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
-        return $this->id_lang;
-    }
-
-    public function getIdLang(): ?int
-    {
-        return $this->id_lang;
-    }
-
-    public function setIdLang(int $id_lang): static
-    {
-        $this->id_lang = $id_lang;
-
-        return $this;
+        return $this->id;
     }
 
     public function getName(): ?string
@@ -53,55 +56,66 @@ class Language
     public function setName(string $name): static
     {
         $this->name = $name;
-
         return $this;
     }
 
-    public function getIdTopic(): ?int
+    /**
+     * @return Collection<int, ProficiencyLevel>
+     */
+    public function getProficiencyLevels(): Collection
     {
-        return $this->id_topic;
+        return $this->proficiencyLevels;
     }
 
-    public function setIdTopic(int $id_topic): static
+    public function addProficiencyLevel(ProficiencyLevel $proficiencyLevel): static
     {
-        $this->id_topic = $id_topic;
-
+        if (!$this->proficiencyLevels->contains($proficiencyLevel)) {
+            $this->proficiencyLevels->add($proficiencyLevel);
+            $proficiencyLevel->setLanguage($this);
+        }
         return $this;
     }
 
-    public function getTopicName(): ?string
+    public function removeProficiencyLevel(ProficiencyLevel $proficiencyLevel): static
     {
-        return $this->topic_name;
-    }
-
-    public function setTopicName(string $topic_name): static
-    {
-        $this->topic_name = $topic_name;
-
+        if ($this->proficiencyLevels->removeElement($proficiencyLevel)) {
+            // Set the owning side to null (unless already changed)
+            if ($proficiencyLevel->getLanguage() === $this) {
+                $proficiencyLevel->setLanguage(null);
+            }
+        }
         return $this;
     }
 
-    public function getLanId(): ?int
+    /**
+     * @return Collection<int, Room>
+     */
+    public function getRooms(): Collection
     {
-        return $this->lan_id;
+        return $this->rooms;
     }
 
-    public function setLanId(int $lan_id): static
+    public function addRoom(Room $room): static
     {
-        $this->lan_id = $lan_id;
-
+        if (!$this->rooms->contains($room)) {
+            $this->rooms->add($room);
+            $room->setTargetLanguage($this);
+        }
         return $this;
     }
 
-    public function getLangName(): ?string
+    public function removeRoom(Room $room): static
     {
-        return $this->lang_name;
+        if ($this->rooms->removeElement($room)) {
+            if ($room->getTargetLanguage() === $this) {
+                $room->setTargetLanguage(null);
+            }
+        }
+        return $this;
     }
 
-    public function setLangName(string $lang_name): static
+    public function __toString(): string
     {
-        $this->lang_name = $lang_name;
-
-        return $this;
+        return sprintf('Language{id=%d, name=\'%s\'}', $this->id ?? 0, $this->name ?? '');
     }
 }

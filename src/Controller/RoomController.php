@@ -4,16 +4,34 @@ namespace App\Controller;
 
 use App\Entity\Room;
 use App\Form\RoomType;
+use App\Repository\LanguageRepository;
+use App\Repository\ProficiencyLevelRepository;
 use App\Repository\RoomRepository;
+use App\Repository\TopicRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/room')]
 class RoomController extends AbstractController
 {
+
+    #[Route('/browse', name: 'app_room_browse', methods: ['GET'])]
+
+    public function browse(
+        TopicRepository $topicRepository,
+        LanguageRepository $languageRepository,
+        ProficiencyLevelRepository $proficiencyLevelRepository
+    ): Response {
+        return $this->render('room/browse.html.twig', [
+            'topics' => $topicRepository->findAll(),
+            'languages' => $languageRepository->findAll(),
+            'proficiencyLevels' => $proficiencyLevelRepository->findAll(),
+        ]);
+    }
     #[Route('/', name: 'app_room_index', methods: ['GET'])]
     public function index(RoomRepository $roomRepository): Response
     {
@@ -48,6 +66,7 @@ class RoomController extends AbstractController
     #[ParamConverter('room', options: ['mapping' => ['room_id' => 'room_id']])]
     public function show(Room $room): Response
     {
+
         return $this->render('room/show.html.twig', [
             'room' => $room,
         ]);

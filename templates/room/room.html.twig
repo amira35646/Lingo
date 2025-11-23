@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Create Room{% endblock %}
+
+{% block body %}
+<div class="container py-4">
+  <h1 class="mb-3">Create Room</h1>
+
+  {{ form_start(form) }}
+    {{ form_widget(form) }}
+    <button type="submit" class="btn btn-primary mt-2">Create</button>
+  {{ form_end(form) }}
+
+  <a href="{{ path('app_room_index') }}" class="btn btn-link mt-3">Back to list</a>
+</div>
+{% endblock %}

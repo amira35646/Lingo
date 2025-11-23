@@ -3,61 +3,134 @@
 namespace App\Entity;
 
 use App\Repository\ChatSessionRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: ChatSessionRepository::class)]
-Class ChatSession
+#[ORM\Table(name: 'chat_sessions')]
+class ChatSession
 {
     #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: Types::INTEGER)]
+    private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $chat_id = null;
+    #[ORM\OneToOne(inversedBy: 'session', fetch: 'LAZY')]
+    #[ORM\JoinColumn(name: 'room_id', referencedColumnName: 'room_id', nullable: true, onDelete: 'SET NULL')]
+    private ?Room $room = null;
 
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
-    private ?\DateTime $start_time = null;
+    /**
+     * @var Collection
+     */
+    #[ORM\ManyToMany(targetEntity: User::class, inversedBy: 'chatSessions', fetch: 'LAZY')]
+    #[ORM\JoinTable(name: 'chat_session_participants')]
+    private Collection $participants;
 
-    #[ORM\Column(type: Types::DATE_MUTABLE)]
-    private ?\DateTime $end_time = null;
+    /**
+     * @var Collection
+     */
+    #[ORM\OneToMany(targetEntity: ChatMessage::class, mappedBy: 'session', cascade: ['persist', 'remove'], fetch: 'EXTRA_LAZY')]
+    private Collection $messages;
+
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE)]
+    private ?\DateTimeImmutable $createdAt = null;
+
+    #[ORM\Column(enumType: SessionStatus::class)]
+    private SessionStatus $status = SessionStatus::IN_PROGRESS;
+
+    public function __construct()
+    {
+        $this->participants = new ArrayCollection();
+        $this->messages = new ArrayCollection();
+        $this->createdAt = new \DateTimeImmutable();
+    }
 
     public function getId(): ?int
     {
-        return $this->chat_id;
+        return $this->id;
     }
 
-    public function getChatId(): ?string
+    public function getRoom(): ?Room
     {
-        return $this->chat_id;
+        return $this->room;
     }
 
-    public function setChatId(string $chat_id): static
+    public function setRoom(?Room $room): self
     {
-        $this->chat_id = $chat_id;
-
+        $this->room = $room;
         return $this;
     }
 
-    public function getStartTime(): ?\DateTime
+    /**
+     * @return Collection
+     */
+    public function getParticipants(): Collection
     {
-        return $this->start_time;
+        return $this->participants;
     }
 
-    public function setStartTime(\DateTime $start_time): static
+    public function addParticipant(User $participant): self
     {
-        $this->start_time = $start_time;
-
+        if (!$this->participants->contains($participant)) {
+            $this->participants->add($participant);
+        }
         return $this;
     }
 
-    public function getEndTime(): ?\DateTime
+    public function removeParticipant(User $participant): self
     {
-        return $this->end_time;
+        $this->participants->removeElement($participant);
+        return $this;
     }
 
-    public function setEndTime(\DateTime $end_time): static
+    /**
+     * @return Collection
+     */
+    public function getMessages(): Collection
     {
-        $this->end_time = $end_time;
+        return $this->messages;
+    }
 
+    public function addMessage(ChatMessage $message): self
+    {
+        if (!$this->messages->contains($message)) {
+            $this->messages->add($message);
+            $message->setSession($this);
+        }
+        return $this;
+    }
+
+    public function removeMessage(ChatMessage $message): self
+    {
+        if ($this->messages->removeElement($message)) {
+            if ($message->getSession() === $this) {
+                $message->setSession(null);
+            }
+        }
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeImmutable $createdAt): self
+    {
+        $this->createdAt = $createdAt;
+        return $this;
+    }
+
+    public function getStatus(): SessionStatus
+    {
+        return $this->status;
+    }
+
+    public function setStatus(SessionStatus $status): self
+    {
+        $this->status = $status;
         return $this;
     }
 }

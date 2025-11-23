@@ -1,0 +1,281 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard - Lingo Management{% endblock %}
+
+{% block body %}
+    <div class="container-fluid">
+        <h1 class="mb-4">
+            <i class="fas fa-chart-line"></i> Dashboard
+        </h1>
+
+        <!-- Statistics Cards -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-4">
+                <div class="card stat-card border-primary shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted mb-2">Total Users</h6>
+                                <h2 class="mb-0 fw-bold">{{ stats.total_users }}</h2>
+                            </div>
+                            <div class="text-primary">
+                                <i class="fas fa-users fa-3x opacity-75"></i>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <a href="{{ path('app_user_index') }}" class="btn btn-sm btn-outline-primary">
+                                View All <i class="fas fa-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card stat-card border-success shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted mb-2">Total Rooms</h6>
+                                <h2 class="mb-0 fw-bold">{{ stats.total_rooms }}</h2>
+                            </div>
+                            <div class="text-success">
+                                <i class="fas fa-door-open fa-3x opacity-75"></i>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <a href="{{ path('app_room_index') }}" class="btn btn-sm btn-outline-success">
+                                View All <i class="fas fa-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card stat-card border-warning shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted mb-2">Total Quizzes</h6>
+                                <h2 class="mb-0 fw-bold">{{ stats.total_quizzes }}</h2>
+                            </div>
+                            <div class="text-warning">
+                                <i class="fas fa-question-circle fa-3x opacity-75"></i>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <a href="{{ path('app_quiz_index') }}" class="btn btn-sm btn-outline-warning">
+                                View All <i class="fas fa-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card stat-card border-info shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted mb-2">Total Messages</h6>
+                                <h2 class="mb-0 fw-bold">{{ stats.total_messages }}</h2>
+                            </div>
+                            <div class="text-info">
+                                <i class="fas fa-comments fa-3x opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card stat-card border-danger shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted mb-2">Total Topics</h6>
+                                <h2 class="mb-0 fw-bold">{{ stats.total_topics }}</h2>
+                            </div>
+                            <div class="text-danger">
+                                <i class="fas fa-book fa-3x opacity-75"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-dark text-white">
+                        <h5 class="mb-0"><i class="fas fa-bolt"></i> Quick Actions</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <a href="{{ path('app_user_new') }}" class="btn btn-primary w-100 py-3">
+                                    <i class="fas fa-user-plus fa-2x d-block mb-2"></i>
+                                    Add New User
+                                </a>
+                            </div>
+                            <div class="col-md-3">
+                                <a href="{{ path('app_room_new') }}" class="btn btn-success w-100 py-3">
+                                    <i class="fas fa-door-open fa-2x d-block mb-2"></i>
+                                    Create Room
+                                </a>
+                            </div>
+                            <div class="col-md-3">
+                                <a href="{{ path('app_quiz_new') }}" class="btn btn-warning w-100 py-3">
+                                    <i class="fas fa-plus-circle fa-2x d-block mb-2"></i>
+                                    Add Quiz
+                                </a>
+                            </div>
+                            <div class="col-md-3">
+                                <a href="{{ path('app_dashboard') }}" class="btn btn-info w-100 py-3">
+                                    <i class="fas fa-sync-alt fa-2x d-block mb-2"></i>
+                                    Refresh Data
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="fas fa-user-plus"></i> Recent Users</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if recent_users|length > 0 %}
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead class="table-light">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Username</th>
+                                        <th>Email</th>
+                                        <th>Role</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for user in recent_users %}
+                                        <tr>
+                                            <td><strong>#{{ user.id }}</strong></td>
+                                            <td>
+                                                <i class="fas fa-user text-primary"></i>
+                                                {{ user.username }}
+                                            </td>
+                                            <td>{{ user.email }}</td>
+                                            <td><span class="badge bg-info">{{ user.role }}</span></td>
+                                        </tr>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="mt-3">
+                                <a href="{{ path('app_user_index') }}" class="btn btn-sm btn-outline-primary w-100">
+                                    View All Users <i class="fas fa-arrow-right"></i>
+                                </a>
+                            </div>
+                        {% else %}
+                            <div class="text-center py-4">
+                                <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">No users yet</p>
+                                <a href="{{ path('app_user_new') }}" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-plus"></i> Add First User
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="fas fa-door-open"></i> Recent Rooms</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if recent_rooms|length > 0 %}
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead class="table-light">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Capacity</th>
+                                        <th>Duration</th>
+                                        <th>Status</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    {% for room in recent_rooms %}
+                                        <td>{{ room.id }}</td>
+                                        <td>{{ room.maxParticipants }}</td>
+                                        <td>{{ room.durationMinutes }} min</td>
+                                        <td>
+                                            {% set statusClass = room.room_status.value == 'available' ? 'success' : (room.room_status.value == 'occupied' ? 'warning' : 'danger') %}
+                                            <span class="badge bg-{{ statusClass }}">
+            {{ room.room_status.value|upper }}
+        </span>
+                                        </td>
+                                    {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="mt-3">
+                                <a href="{{ path('app_room_index') }}" class="btn btn-sm btn-outline-success w-100">
+                                    View All Rooms <i class="fas fa-arrow-right"></i>
+                                </a>
+                            </div>
+                        {% else %}
+                            <div class="text-center py-4">
+                                <i class="fas fa-door-open fa-3x text-muted mb-3"></i>
+                                <p class="text-muted">No rooms yet</p>
+                                <a href="{{ path('app_room_new') }}" class="btn btn-sm btn-success">
+                                    <i class="fas fa-plus"></i> Create First Room
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Info Footer -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-body text-center">
+                        <p class="mb-0 text-muted">
+                            <i class="fas fa-info-circle"></i>
+                            Lingo Management System | Last updated: {{ "now"|date("Y-m-d H:i:s") }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .stat-card {
+            transition: all 0.3s ease;
+            border-left-width: 4px !important;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+        }
+
+        .opacity-75 {
+            opacity: 0.75;
+        }
+    </style>
+{% endblock %}
